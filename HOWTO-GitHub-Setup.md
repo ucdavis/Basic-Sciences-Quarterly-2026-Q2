@@ -14,24 +14,26 @@ Path (inside your newsletter project):
 
 ## What each part does
 
+**One repo holds every quarter, forever.** Each quarter gets its own permanent subfolder under `public/` — e.g. `public/2026-q2/`, `public/2026-q3/` — so old issues stay live at the same URL after a new quarter is published, and nothing gets overwritten by mistake.
+
 | Path | Purpose |
 |------|--------|
 | **`public/`** | Only these files are published. Nothing else in this folder needs to be on the website. |
-| **`public/index.html`** | Home page (must stay named **`index.html`**, all lowercase, or GitHub Pages shows 404 at the site root). |
-| **`public/newsletter.html`** | Current quarterly newsletter (overwrite each issue). |
-| **`public/publications.html`** | Current publication list (overwrite each issue). |
-| **`public/faculty-metrics.html`** | Current faculty metrics page (overwrite each issue). |
-| **`scripts/prepare-issue.sh`** | Copies your three final draft files into `public/` using those stable names. |
-| **`.github/workflows/deploy-pages.yml`** | Builds GitHub Pages from **`public/`** only. |
+| **`public/index.html`** | Home page, with a link section per quarter. Must stay named **`index.html`**, all lowercase, or GitHub Pages shows 404 at the site root. |
+| **`public/2026-q2/newsletter.html`** | That quarter's newsletter (never overwritten — each quarter gets a new subfolder). |
+| **`public/2026-q2/publications.html`** | That quarter's publication list. |
+| **`public/2026-q2/faculty-metrics.html`** | That quarter's faculty metrics page. |
+| **`scripts/prepare-issue.sh`** | Copies your three final draft files into `public/<quarter>/` using those stable names. |
+| **`.github/workflows/deploy-pages.yml`** | Builds GitHub Pages from **`public/`** only (this doesn't change quarter to quarter). |
 
 Stable URLs on the site always look like:
 
 - `…/index.html` (or the site root `/`)
-- `…/newsletter.html`
-- `…/publications.html`
-- `…/faculty-metrics.html`
+- `…/2026-q2/newsletter.html`
+- `…/2026-q2/publications.html`
+- `…/2026-q2/faculty-metrics.html`
 
-Inside your HTML, link to **`publications.html`** and **`faculty-metrics.html`** (not dated filenames), so buttons never 404 after you swap files.
+Inside your HTML, link to **`publications.html`** and **`faculty-metrics.html`** as plain filenames with no folder in front (not dated filenames). Because each quarter's three pages sit together in the same subfolder, those plain relative links keep working without any changes.
 
 ---
 
@@ -74,34 +76,38 @@ You can use this folder as **its own repository**, or copy **`public/`** and **`
 
 ## Every new quarter (checklist)
 
-1. **Finish** your three HTML files in your normal draft location (e.g. Claude BS Newsletter).
+1. **Finish** your three HTML files in your normal draft location (e.g. Claude BS Newsletter), and promote them to that quarter's "Locked Finals" versions once they're confirmed correct.
 
-2. **Optional but recommended:** In those files, use links **`publications.html`** and **`faculty-metrics.html`** between the three pages. If you still use dated names (e.g. `publications-q2-2026-….html`), use the script’s rewrite step below.
+2. **Optional but recommended:** In those files, use links **`publications.html`** and **`faculty-metrics.html`** between the three pages (no folder in front). If you still use dated names (e.g. `publications-q3-2026-….html`), use the script's rewrite step below.
 
-3. **Run the prepare script** from this folder:
+3. **Pick this quarter's folder name** — the pattern is `<year>-q<quarter>`, e.g. `2026-q3`.
+
+4. **Run the prepare script** from this folder, with the quarter folder name as the first argument:
 
    ```bash
    cd "/Users/ajoo/Desktop/Claude/Claude BS Newsletter/Basic-Sciences-Quarterly-GitHub-Setup"
-   ./scripts/prepare-issue.sh \
+   ./scripts/prepare-issue.sh 2026-q3 \
      "/path/to/your/final-newsletter.html" \
      "/path/to/your/final-publications.html" \
      "/path/to/your/final-faculty-metrics.html"
    ```
 
-4. **If drafts use different internal filenames**, set **`BSQ_LINK_FIX`** once per issue (semicolon-separated `old.html:new.html` pairs):
+   This creates `public/2026-q3/` with the three stable filenames inside — it never touches or overwrites a previous quarter's folder.
+
+5. **If drafts use different internal filenames**, set **`BSQ_LINK_FIX`** once per issue (semicolon-separated `old.html:new.html` pairs):
 
    ```bash
    export BSQ_LINK_FIX="my-pubs-draft.html:publications.html;my-faculty-draft.html:faculty-metrics.html"
-   ./scripts/prepare-issue.sh "/path/to/newsletter.html" "/path/to/pubs.html" "/path/to/faculty.html"
+   ./scripts/prepare-issue.sh 2026-q3 "/path/to/newsletter.html" "/path/to/pubs.html" "/path/to/faculty.html"
    ```
 
-5. **Edit `public/index.html`** if you want the subtitle or card labels to mention the new quarter (optional).
+6. **Edit `public/index.html`** to add a new card section for the new quarter — copy the existing `<h2 class="quarter">` block and its three `<li>` cards, then change the heading text and the three `href` values to point at the new `<quarter>/...` folder. Relabel the previous quarter's heading (drop "(current issue)").
 
-6. **Commit and push** (Terminal or GitHub Desktop).
+7. **Commit and push** (Terminal or GitHub Desktop).
 
-7. Wait for **Actions** to finish, then open the live site and do a **hard refresh** (e.g. **Cmd+Shift+R**).
+8. Wait for **Actions** to finish, then open the live site and do a **hard refresh** (e.g. **Cmd+Shift+R**). Confirm both the new quarter's pages AND the previous quarter's pages still load.
 
-8. **Before editing on another computer**, in GitHub Desktop: **Repository → Pull** (or **Fetch / Pull origin**).
+9. **Before editing on another computer**, in GitHub Desktop: **Repository → Pull** (or **Fetch / Pull origin**).
 
 ---
 
